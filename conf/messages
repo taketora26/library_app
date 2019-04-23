@@ -1,1 +1,7 @@
-# https://www.playframework.com/documentation/latest/ScalaI18N
+Title=書籍管理システム
+RegisterBook=新規登録
+BookList=書籍一覧
+BookTitle=タイトル
+BookAuthor=著者
+error.required=タイトルを入力してください
+NotFoundBook=該当する本がありません
