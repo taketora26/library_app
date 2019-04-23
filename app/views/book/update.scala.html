@@ -1,0 +1,49 @@
+@import controllers.forms.BookUpdate
+@import helper._
+@(bookUpdateForm: Form[BookUpdate])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+<!DOCTYPE html>
+<html lang="ja">
+    @views.html.header(title = "書籍を更新")
+
+<main class="container">
+    <h4>@Messages("BookInformation")</h4>
+
+    @form(CSRF(Call("POST", "/books/update"))) {
+
+        @for(error <- bookUpdateForm.errors) {
+            <p class="error">@Messages(error.message)</p>
+        }
+
+        <div class="row">
+            <input type="hidden" class="input-field col s12" name="id" value=@bookUpdateForm.get.id>
+        </div>
+
+        <div class="row">
+            <label>@Messages("BookTitle")</label>
+            <input  class="input-field col s12" name="name" value=@bookUpdateForm.get.name>
+        </div>
+
+        <div class="row">
+            <label>@Messages("BookTitle")</label>
+            <input  class="input-field col s12" name="author" value=@bookUpdateForm.get.author>
+        </div>
+
+        <div class="row">
+            <label>@Messages("PublishedDate")</label>
+            <input type="Date" class="input-field col s12" name="publishedDate" value=@bookUpdateForm.get.publishedDate>
+        </div>
+
+        <div class="row">
+            <label>@Messages("Description")</label>
+            <textarea class="materialize-textarea" name="description">@bookUpdateForm.get.description</textarea>
+        </div>
+
+        <button class="waves-effect waves-light btn-small">@Messages("Update")</button>
+    }
+
+    </br>
+
+</main>
+    </body>
+</html>

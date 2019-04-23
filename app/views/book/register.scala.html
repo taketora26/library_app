@@ -1,0 +1,42 @@
+@import controllers.forms.BookRegister
+@import helper._
+@(bookRegisterForm: Form[BookRegister])(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+
+<!DOCTYPE html>
+<html lang="ja">
+    @views.html.header(title = "書籍を登録")
+
+<main class="container">
+    <h4>@Messages("InputBookInformation")</h4>
+
+    @form(CSRF(Call("POST", "/books/register"))) {
+
+        @for(error <- bookRegisterForm.errors) {
+            <p class="error">@Messages(error.message)</p>
+        }
+
+        <div class="row">
+            <label>@Messages("BookTitle")</label>
+            <input type="text" class="input-field col s12" name="name" placeHolder="本のタイトルを入力してください">
+        </div>
+
+        <div class="row">
+            <label>@Messages("BookAuthor")</label>
+            <input type="text" class="input-field col s12" name="author" placeHolder="本の著者を入力してください">
+        </div>
+
+        <div class="row">
+            <label>@Messages("PublishedDate")</label>
+            <input type="Date" class="input-field col s12" name="publishedDate" placeHolder="本の発行日を入力してください">
+        </div>
+
+        <div class="row">
+            <label>@Messages("Description")</label>
+            <input type="text" class="input-field col s12" name="description" placeHolder="本の説明を入力してください">
+        </div>
+
+        <button type="submit" class="btn">@Messages("Register")</button>
+    }
+</main>
+    </body>
+</html>
