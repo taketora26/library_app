@@ -11,4 +11,7 @@ trait BookRepository {
 
   def findByName(name: String): Try[Seq[Book]]
 
+  def update(book: Book): Try[Unit]
+
+  def findById(bookId: String): Try[Option[Book]]
 }

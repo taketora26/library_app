@@ -43,4 +43,26 @@ class BookRepositoryOnJDBC extends BookRepository {
     }
   }
 
+  def update(book: Book): Try[Unit] = Try {
+    val record = BookRecord(book)
+    DB localTx { implicit session =>
+      sql"""update books
+           | set
+           | name = ${record.name},
+           | author = ${record.author},
+           | published_date = ${record.publishedDate},
+           | description = ${record.description}
+           | where id = ${record.id}
+        """.stripMargin
+        .update()
+        .apply()
+    }
+  }
+
+  def findById(bookId: String): Try[Option[Book]] = Try {
+    DB readOnly { implicit session =>
+      sql"select b.* from books as b where id = $bookId".map(Book(b.resultName)).headOption().apply()
+    }
+  }
+
 }

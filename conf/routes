@@ -3,3 +3,5 @@ GET         /assets/*file          controllers.Assets.versioned(path="/public", 
 GET         /books                 controllers.BookController.index()
 GET         /books/register        controllers.RegisterBookController.index()
 POST        /books/register        controllers.RegisterBookController.register()
+GET         /books/:id/update      controllers.UpdateBookController.index(id:String)
+
