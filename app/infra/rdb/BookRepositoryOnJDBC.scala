@@ -65,4 +65,10 @@ class BookRepositoryOnJDBC extends BookRepository {
     }
   }
 
+  def delete(bookId: String): Try[Unit] = Try {
+    DB localTx { implicit session =>
+      sql"delete from books where id = $bookId".update().apply()
+    }
+  }
+
 }

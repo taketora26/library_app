@@ -1,6 +1,6 @@
 @import controllers.dtos.BookDTO
 @import helper._
-@(books: Seq[BookDTO])(implicit messagesProvider : MessagesProvider)
+@(books: Seq[BookDTO])(implicit request: RequestHeader, messagesProvider : MessagesProvider)
 
 <!DOCTYPE html>
 <html lang="ja">
@@ -12,6 +12,7 @@
                         <tr>
                             <th>@Messages("BookTitle")</th>
                             <th>@Messages("BookAuthor")</th>
+                            <th></th>
                             @*追加*@
                             <th></th>
                         </tr>
@@ -24,8 +25,11 @@
                             <tr>
                                 <td>@book.name</td>
                                 <td>@book.author</td>
-                                @*追加*@
                                 <td><a class="waves-effect waves-light btn-small" href=@routes.UpdateBookController.index(book.id)>@Messages("Details")</a></td>
+                                @*追加*@
+                                <td>@form(CSRF(routes.DeleteBookController.delete(book.id))) {
+                                    <button class="waves-effect waves-light red lighten-2 btn-small"><i class = "material-icons">delete</i></button>
+                                }</td>
                             </tr>
                         }
                     }

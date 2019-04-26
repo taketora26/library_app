@@ -23,4 +23,17 @@ class UpdateBookController @Inject()(cc: ControllerComponents, bookRepository: B
       }
     }
   }
+
+  def update(): Action[AnyContent] = Action { implicit request =>
+    BookUpdate.form.bindFromRequest.fold(
+      error => BadRequest(views.html.book.update(error)),
+      updatingBook => {
+        val book = updatingBook.toBookModel
+        bookRepository.update(book) match {
+          case Failure(ex) => InternalServerError(ex.getMessage)
+          case Success(_)  => Redirect("/books")
+        }
+      }
+    )
+  }
 }

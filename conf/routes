@@ -4,4 +4,5 @@ GET         /books                 controllers.BookController.index()
 GET         /books/register        controllers.RegisterBookController.index()
 POST        /books/register        controllers.RegisterBookController.register()
 GET         /books/:id/update      controllers.UpdateBookController.index(id:String)
-
+POST        /books/update          controllers.UpdateBookController.update()
+POST        /books/:id/delete      controllers.DeleteBookController.delete(id:String)

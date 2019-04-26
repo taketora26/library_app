@@ -14,4 +14,7 @@ trait BookRepository {
   def update(book: Book): Try[Unit]
 
   def findById(bookId: String): Try[Option[Book]]
+
+  def delete(bookId: String): Try[Unit]
+
 }
