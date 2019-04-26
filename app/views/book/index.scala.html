@@ -6,6 +6,16 @@
 <html lang="ja">
     @views.html.header(title = "登録書籍")
         <div class="container">
+            @*追加*@
+            <div class="nav-wrapper">
+            @form(CSRF(Call("POST","/books/search"))) {
+                <div class="input-field">
+                    <input type="search" name="name" required placeHolder="本のタイトルで検索">
+                    <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+                    <i class="material-icons">close</i>
+                </div>
+            }
+            </div>
             <div class="books-list">
                 <table class="highlight">
                     <thead>
@@ -13,7 +23,6 @@
                             <th>@Messages("BookTitle")</th>
                             <th>@Messages("BookAuthor")</th>
                             <th></th>
-                            @*追加*@
                             <th></th>
                         </tr>
                     </thead>
@@ -26,7 +35,6 @@
                                 <td>@book.name</td>
                                 <td>@book.author</td>
                                 <td><a class="waves-effect waves-light btn-small" href=@routes.UpdateBookController.index(book.id)>@Messages("Details")</a></td>
-                                @*追加*@
                                 <td>@form(CSRF(routes.DeleteBookController.delete(book.id))) {
                                     <button class="waves-effect waves-light red lighten-2 btn-small"><i class = "material-icons">delete</i></button>
                                 }</td>

@@ -71,4 +71,11 @@ class BookRepositoryOnJDBC extends BookRepository {
     }
   }
 
+  def searchName(name: String): Try[Seq[Book]] = Try {
+    DB readOnly { implicit session =>
+      val searchName = s"%$name%"
+      sql"select b.* from books as b where name like $searchName".map(Book(b.resultName)).list().apply()
+    }
+  }
+
 }

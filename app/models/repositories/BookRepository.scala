@@ -17,4 +17,6 @@ trait BookRepository {
 
   def delete(bookId: String): Try[Unit]
 
+  def searchName(name: String): Try[Seq[Book]]
+
 }

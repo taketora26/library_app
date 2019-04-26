@@ -1,6 +1,7 @@
 package controllers
 
 import controllers.dtos.BookDTO
+import controllers.forms.BookSearch
 import javax.inject.{Inject, Singleton}
 import models.repositories.BookRepository
 import play.api.Logging
@@ -29,4 +30,24 @@ class BookController @Inject()(cc: ControllerComponents, bookRepository: BookRep
       }
       .getOrElse(InternalServerError)
   }
+
+  def search(): Action[AnyContent] = Action { implicit request =>
+    BookSearch.form.bindFromRequest.fold(
+      _ => Redirect("/books"),
+      bookName => {
+        bookRepository
+          .searchName(bookName.name)
+          .map { books =>
+            val bookDTOs = books.map(BookDTO(_))
+            Ok(views.html.book.index(bookDTOs))
+          }
+          .recover {
+            case NonFatal(ex) =>
+              logger.error(s"occurred error", ex)
+              InternalServerError(ex.getMessage)
+          }
+      }.getOrElse(InternalServerError)
+    )
+  }
+
 }
