@@ -9,14 +9,13 @@ import scala.util.Try
 
 class BookRepositoryOnJDBC extends BookRepository {
 
-  val b: QuerySQLSyntaxProvider[SQLSyntaxSupport[Book], Book] = Book.syntax("b")
+  val b: scalikejdbc.QuerySQLSyntaxProvider[scalikejdbc.SQLSyntaxSupport[BookRecord], BookRecord] =
+    BookRecord.syntax("b")
 
   def findAll(): Try[Seq[Book]] = Try {
     DB readOnly { implicit session =>
       sql"select * from books as b LIMIT 200 "
-        .map(Book(b.resultName))
-        .list()
-        .apply()
+        .map(BookRecord(b.resultName)).list().apply().map(toModel)
     }
   }
 
@@ -39,7 +38,7 @@ class BookRepositoryOnJDBC extends BookRepository {
 
   def findByName(name: String): Try[Seq[Book]] = Try {
     DB readOnly { implicit session =>
-      sql"select b.* from books as b where name = $name".map(Book(b.resultName)).list().apply()
+      sql"select b.* from books as b where name = $name".map(BookRecord(b.resultName)).list().apply().map(toModel)
     }
   }
 
@@ -61,7 +60,7 @@ class BookRepositoryOnJDBC extends BookRepository {
 
   def findById(bookId: String): Try[Option[Book]] = Try {
     DB readOnly { implicit session =>
-      sql"select b.* from books as b where id = $bookId".map(Book(b.resultName)).headOption().apply()
+      sql"select b.* from books as b where id = $bookId".map(BookRecord(b.resultName)).headOption().apply().map(toModel)
     }
   }
 
@@ -74,8 +73,22 @@ class BookRepositoryOnJDBC extends BookRepository {
   def searchName(name: String): Try[Seq[Book]] = Try {
     DB readOnly { implicit session =>
       val searchName = s"%$name%"
-      sql"select b.* from books as b where name like $searchName".map(Book(b.resultName)).list().apply()
+      sql"select b.* from books as b where name like $searchName"
+        .map(BookRecord(b.resultName))
+        .list()
+        .apply()
+        .map(toModel)
     }
+  }
+
+  private val toModel: BookRecord => Book = { bookRecord =>
+    new Book(
+      bookRecord.id,
+      Name(bookRecord.name),
+      bookRecord.author.map(Author),
+      bookRecord.publishedDate.map(PublishedDate(_)),
+      bookRecord.description.map(Description)
+    )
   }
 
 }

@@ -1,7 +1,9 @@
 package infra.rdb.records
 
 import java.time.LocalDate
+
 import models.Book
+import scalikejdbc.{ResultName, SQLSyntaxSupport, WrappedResultSet}
 
 case class BookRecord(id: String,
                       name: String,
@@ -9,7 +11,7 @@ case class BookRecord(id: String,
                       publishedDate: Option[LocalDate],
                       description: Option[String])
 
-object BookRecord {
+object BookRecord extends SQLSyntaxSupport[BookRecord] {
 
   def apply(book: Book): BookRecord = new BookRecord(
     book.id,
@@ -19,4 +21,13 @@ object BookRecord {
     book.description.map(_.value)
   )
 
+  def apply(rn: ResultName[BookRecord])(rs: WrappedResultSet): BookRecord = {
+    new BookRecord(
+      rs.string("id"),
+      rs.string("name"),
+      rs.stringOpt("author"),
+      rs.localDateOpt("published_date"),
+      rs.stringOpt("description")
+    )
+  }
 }
