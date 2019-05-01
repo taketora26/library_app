@@ -15,7 +15,10 @@ class BookRepositoryOnJDBC extends BookRepository {
   def findAll(): Try[Seq[Book]] = Try {
     DB readOnly { implicit session =>
       sql"select * from books as b LIMIT 200 "
-        .map(BookRecord(b.resultName)).list().apply().map(toModel)
+        .map(BookRecord(b.resultName))
+        .list()
+        .apply()
+        .map(toModel)
     }
   }
 
