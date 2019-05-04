@@ -3,7 +3,9 @@ package controllers
 import controllers.forms.BookRegister
 import javax.inject.{Inject, Singleton}
 import models.Book
+import models.exception.DuplicateBookNameException
 import models.repositories.BookRepository
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 
@@ -12,7 +14,8 @@ import scala.util.{Failure, Success}
 @Singleton
 class RegisterBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)
     extends AbstractController(cc)
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def index(): Action[AnyContent] = Action { implicit request =>
     Ok(views.html.book.register(BookRegister.form))
@@ -22,18 +25,20 @@ class RegisterBookController @Inject()(cc: ControllerComponents, bookRepository:
     BookRegister.form.bindFromRequest.fold(
       error => BadRequest(views.html.book.register(error)),
       book => {
-        bookRepository
-          .findByName(book.name)
-          .map {
-            case Nil =>
-              bookRepository.add(Book(book.name, book.author, book.publishedDate, book.description)) match {
-                case Success(_)  => Redirect("/books")
-                case Failure(ex) => InternalServerError(ex.getMessage)
-              }
+        (for {
+          books  <- bookRepository.findByName(book.name)
+          _      <- Book.canRegister(books).toTry
+          result <- bookRepository.add(Book(book.name, book.author, book.publishedDate, book.description))
+        } yield result) match {
+          case Success(_) => Redirect("/books")
 
-            case _ => Redirect("/books")
+          case Failure(ex: DuplicateBookNameException) =>
+            BadRequest(views.html.book.register(BookRegister.form.withGlobalError(ex.getMessage)))
+          case Failure(ex) => {
+            logger.error(s"occurred error", ex)
+            InternalServerError(ex.getMessage)
           }
-          .getOrElse(InternalServerError)
+        }
       }
     )
   }

@@ -3,23 +3,27 @@ package controllers
 import controllers.forms.BookUpdate
 import javax.inject.{Inject, Singleton}
 import models.repositories.BookRepository
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
-
 import scala.util.{Failure, Success}
 
 @Singleton
 class UpdateBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)
     extends AbstractController(cc)
-    with I18nSupport {
+    with I18nSupport
+    with Logging {
 
   def index(id: String): Action[AnyContent] = Action { implicit request =>
     bookRepository.findById(id) match {
-      case Failure(ex)   => InternalServerError(ex.getMessage)
-      case Success(None) => NotFound("idが見つかりませんでした。")
       case Success(Some(book)) => {
         val editForm = BookUpdate.form.fill(BookUpdate(book))
         Ok(views.html.book.update(editForm))
+      }
+      case Success(None) => NotFound("idが見つかりませんでした。")
+      case Failure(ex) => {
+        logger.error(s"occurred error", ex)
+        InternalServerError(ex.getMessage)
       }
     }
   }
@@ -30,8 +34,11 @@ class UpdateBookController @Inject()(cc: ControllerComponents, bookRepository: B
       updatingBook => {
         val book = updatingBook.toBookModel
         bookRepository.update(book) match {
-          case Failure(ex) => InternalServerError(ex.getMessage)
-          case Success(_)  => Redirect("/books")
+          case Success(_) => Redirect("/books")
+          case Failure(ex) => {
+            logger.error(s"occurred error", ex)
+            InternalServerError(ex.getMessage)
+          }
         }
       }
     )

@@ -5,7 +5,6 @@ import models.repositories.BookRepository
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents, _}
-
 import scala.util.{Failure, Success}
 
 @Singleton
@@ -23,5 +22,4 @@ class DeleteBookController @Inject()(cc: ControllerComponents, bookRepository: B
       }
     }
   }
-
 }

@@ -7,8 +7,7 @@ import models.repositories.BookRepository
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
-
-import scala.util.control.NonFatal
+import scala.util.{Failure, Success}
 
 @Singleton
 class BookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)
@@ -17,18 +16,16 @@ class BookController @Inject()(cc: ControllerComponents, bookRepository: BookRep
     with Logging {
 
   def index(): Action[AnyContent] = Action { implicit request =>
-    bookRepository
-      .findAll()
-      .map { books =>
+    bookRepository.findAll() match {
+      case Success(books) => {
         val bookDTOs = books.map(BookDTO(_))
         Ok(views.html.book.index(bookDTOs))
       }
-      .recover {
-        case NonFatal(ex) =>
-          logger.error(s"occurred error", ex)
-          InternalServerError(ex.getMessage)
+      case Failure(ex) => {
+        logger.error(s"index occurred error", ex)
+        InternalServerError(ex.getMessage)
       }
-      .getOrElse(InternalServerError)
+    }
   }
 
   def search(): Action[AnyContent] = Action { implicit request =>
@@ -36,18 +33,17 @@ class BookController @Inject()(cc: ControllerComponents, bookRepository: BookRep
       _ => Redirect("/books"),
       bookName => {
         bookRepository
-          .searchName(bookName.name)
-          .map { books =>
+          .searchName(bookName.name) match {
+          case Success(books) => {
             val bookDTOs = books.map(BookDTO(_))
             Ok(views.html.book.index(bookDTOs))
           }
-          .recover {
-            case NonFatal(ex) =>
-              logger.error(s"occurred error", ex)
-              InternalServerError(ex.getMessage)
+          case Failure(ex) => {
+            logger.error(s"occurred error", ex)
+            InternalServerError(ex.getMessage)
           }
-      }.getOrElse(InternalServerError)
+        }
+      }
     )
   }
-
 }
