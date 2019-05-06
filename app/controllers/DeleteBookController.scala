@@ -1,14 +1,17 @@
 package controllers
 
 import javax.inject.{Inject, Singleton}
-import models.repositories.BookRepository
+import models.repositories.{BookRepository, Context}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, ControllerComponents, _}
+
 import scala.util.{Failure, Success}
 
 @Singleton
-class DeleteBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)
+class DeleteBookController @Inject()(cc: ControllerComponents,
+                                     bookRepository: BookRepository,
+                                     implicit val ctx: Context)
     extends AbstractController(cc)
     with I18nSupport
     with Logging {

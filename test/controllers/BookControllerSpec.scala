@@ -1,6 +1,8 @@
 package controllers
 
 import java.time.LocalDate
+
+import infra.rdb.ContextOnJDBC
 import models.Book
 import models.repositories.BookRepository
 import org.mockito.Mockito._
@@ -15,12 +17,14 @@ import scala.util.{Failure, Success}
 
 class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
-  private val mockBookRepository = mock[BookRepository]
+  private val mockBookRepository   = mock[BookRepository]
+  private implicit val mockContext = mock[ContextOnJDBC]
 
   private val controller =
     new BookController(
       stubControllerComponents(),
-      mockBookRepository
+      mockBookRepository,
+      mockContext
     )
 
   private val books = List(

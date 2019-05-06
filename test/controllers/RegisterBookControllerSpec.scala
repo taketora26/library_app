@@ -1,4 +1,5 @@
 package controllers
+import infra.rdb.ContextOnJDBC
 import models.Book
 import models.repositories.BookRepository
 import org.mockito.ArgumentMatchers.any
@@ -13,11 +14,13 @@ import play.api.test.Helpers.{status, stubControllerComponents, _}
 import scala.util.{Failure, Success}
 class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
-  private val mockBookRepository = mock[BookRepository]
+  private val mockBookRepository   = mock[BookRepository]
+  private implicit val mockContext = mock[ContextOnJDBC]
 
   private val controller = new RegisterBookController(
     stubControllerComponents(),
-    mockBookRepository
+    mockBookRepository,
+    mockContext
   )
 
   "index()" should {
@@ -38,7 +41,7 @@ class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results
   "register()" should {
     "登録フォームに本のタイトルが入力されていれば、登録後、登録本一覧にリダイレクトされる" in {
       when(mockBookRepository.findByName("MyBook1")).thenReturn(Success(Nil))
-      when(mockBookRepository.add(any[Book])).thenReturn(Success(()))
+      when(mockBookRepository.add(any[Book])(any[ContextOnJDBC])).thenReturn(Success(()))
 
       val request = FakeRequest(POST, "/books/register").withFormUrlEncodedBody(
         "name" -> "MyBook1"
@@ -50,7 +53,7 @@ class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results
 
     "登録フォームに本のタイトルが入力されていない場合は、BadRequest(400)を返す" in {
       when(mockBookRepository.findByName("MyBook1")).thenReturn(Success(Nil))
-      when(mockBookRepository.add(any[Book])).thenReturn(Success(()))
+      when(mockBookRepository.add(any[Book])(any[ContextOnJDBC])).thenReturn(Success(()))
 
       val request = FakeRequest(POST, "/books/register").withFormUrlEncodedBody(
         "name" -> ""
@@ -73,7 +76,8 @@ class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results
 
     "BookRepository.addで例外が発生した場合、Internal Server Error(500)を返す" in {
       when(mockBookRepository.findByName("MyBook1")).thenReturn(Success(Nil))
-      when(mockBookRepository.add(any[Book])).thenReturn(Failure(new Exception("Something happened")))
+      when(mockBookRepository.add(any[Book])(any[ContextOnJDBC]))
+        .thenReturn(Failure(new Exception("Something happened")))
 
       val request = FakeRequest(POST, "/books/register").withFormUrlEncodedBody(
         "name" -> "MyBook1"

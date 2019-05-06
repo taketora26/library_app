@@ -2,18 +2,18 @@ package infra.rdb
 
 import infra.rdb.records.BookRecord
 import models._
-import models.repositories.BookRepository
-import scalikejdbc.{DB, _}
+import models.repositories.{BookRepository, Context}
+import scalikejdbc._
 
 import scala.util.Try
 
-class BookRepositoryOnJDBC extends BookRepository {
+class BookRepositoryOnJDBC extends BookRepository with RepositoryOnJDBC {
 
   val b: scalikejdbc.QuerySQLSyntaxProvider[scalikejdbc.SQLSyntaxSupport[BookRecord], BookRecord] =
     BookRecord.syntax("b")
 
-  def findAll(): Try[Seq[Book]] = Try {
-    DB readOnly { implicit session =>
+  def findAll()(implicit ctx: Context): Try[Seq[Book]] = Try {
+    withDBSession(ctx) { implicit session =>
       sql"select * from books as b LIMIT 200 "
         .map(BookRecord(b.resultName))
         .list()
@@ -22,9 +22,9 @@ class BookRepositoryOnJDBC extends BookRepository {
     }
   }
 
-  def add(book: Book): Try[Unit] = Try {
+  def add(book: Book)(implicit ctx: Context): Try[Unit] = Try {
     val record = BookRecord(book)
-    DB localTx { implicit session =>
+    withDBSession(ctx) { implicit session =>
       sql"""insert into books (id, name, author, published_date, description)
            |values (
            |${record.id},
@@ -39,15 +39,15 @@ class BookRepositoryOnJDBC extends BookRepository {
     }
   }
 
-  def findByName(name: String): Try[Seq[Book]] = Try {
-    DB readOnly { implicit session =>
+  def findByName(name: String)(implicit ctx: Context): Try[Seq[Book]] = Try {
+    withDBSession(ctx) { implicit session =>
       sql"select b.* from books as b where name = $name".map(BookRecord(b.resultName)).list().apply().map(toModel)
     }
   }
 
-  def update(book: Book): Try[Unit] = Try {
+  def update(book: Book)(implicit ctx: Context): Try[Unit] = Try {
     val record = BookRecord(book)
-    DB localTx { implicit session =>
+    withDBSession(ctx) { implicit session =>
       sql"""update books
            | set
            | name = ${record.name},
@@ -61,20 +61,20 @@ class BookRepositoryOnJDBC extends BookRepository {
     }
   }
 
-  def findById(bookId: String): Try[Option[Book]] = Try {
-    DB readOnly { implicit session =>
+  def findById(bookId: String)(implicit ctx: Context): Try[Option[Book]] = Try {
+    withDBSession(ctx) { implicit session =>
       sql"select b.* from books as b where id = $bookId".map(BookRecord(b.resultName)).headOption().apply().map(toModel)
     }
   }
 
-  def delete(bookId: String): Try[Unit] = Try {
-    DB localTx { implicit session =>
+  def delete(bookId: String)(implicit ctx: Context): Try[Unit] = Try {
+    withDBSession(ctx) { implicit session =>
       sql"delete from books where id = $bookId".update().apply()
     }
   }
 
-  def searchName(name: String): Try[Seq[Book]] = Try {
-    DB readOnly { implicit session =>
+  def searchName(name: String)(implicit ctx: Context): Try[Seq[Book]] = Try {
+    withDBSession(ctx) { implicit session =>
       val searchName = s"%$name%"
       sql"select b.* from books as b where name like $searchName"
         .map(BookRecord(b.resultName))
@@ -93,5 +93,4 @@ class BookRepositoryOnJDBC extends BookRepository {
       bookRecord.description.map(Description)
     )
   }
-
 }
