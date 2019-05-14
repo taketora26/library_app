@@ -109,7 +109,7 @@ class BookRepositoryOnJDBCSpec extends FlatSpec with AutoRollback with TryValues
     implicit val ctx = ContextOnJDBC(session)
 
     val result: Try[Seq[Book]] = repository.findAll()
-    val expectedRecordNumber   = 3
+    val expectedRecordNumber   = 20
     assert(result.success.value.size === expectedRecordNumber)
   }
 

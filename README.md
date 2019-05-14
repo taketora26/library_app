@@ -16,6 +16,14 @@ MySQLを立ち上げて下記を実行
 $ sh create-local-mysql.sh
 ```
 
+マイグレーションを実行
+
+```bash
+$ sbt flywayMigrate
+```
+
+起動
+
 ```bash
 $ sbt run
 ```
