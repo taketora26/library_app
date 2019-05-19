@@ -3,11 +3,12 @@ package controllers
 import controllers.forms.BookRegister
 import javax.inject.{Inject, Singleton}
 import models.Book
-import models.exception.{DuplicateBookNameError, RegisterError}
+import models.exception.DuplicateBookNameException
 import models.repositories.BookRepository
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+import util.EitherOps._
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
@@ -27,19 +28,18 @@ class RegisterBookController @Inject()(cc: ControllerComponents, bookRepository:
     BookRegister.form.bindFromRequest.fold(
       error => Future.successful(BadRequest(views.html.book.register(error))),
       book => {
-        val xx: Future[Either[RegisterError, Unit]] = for {
+        val result: Future[Unit] = for {
           books <- bookRepository.findByName(book.name)
-        } yield
-          for {
-            _ <- Book.canRegister(books)
-            _ <- bookRepository.add(Book(book.name, book.author, book.publishedDate, book.description)).toEither
-          } yield ()
-        xx.map {
-            case Right(_) => Redirect("/books")
-            case Left(DuplicateBookNameError) =>
-              BadRequest(views.html.book.register(BookRegister.form.withGlobalError(DuplicateBookNameError.message)))
+          _     <- Book.canRegister(books).toFuture()
+          _     <- bookRepository.add(Book(book.name, book.author, book.publishedDate, book.description))
+        } yield ()
+        result
+          .map { _ =>
+            Redirect("/books")
           }
           .recover {
+            case e: DuplicateBookNameException =>
+              BadRequest(views.html.book.register(BookRegister.form.withGlobalError(e.getMessage)))
             case NonFatal(ex) => {
               logger.error(s"occurred error", ex)
               InternalServerError(ex.getMessage)

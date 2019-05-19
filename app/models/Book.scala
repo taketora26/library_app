@@ -3,7 +3,7 @@ package models
 import java.time.LocalDate
 import java.util.UUID
 
-import models.exception.{DuplicateBookNameError, RegisterError}
+import models.exception.DuplicateBookNameException
 
 case class Book(id: String,
                 name: Name,
@@ -41,10 +41,10 @@ object Book {
     )
   }
 
-  def canRegister(books: Seq[Book]): Either[RegisterError, Boolean] = {
+  def canRegister(books: Seq[Book]): Either[DuplicateBookNameException, Boolean] = {
     books match {
       case Nil => Right(true)
-      case _   => Left(DuplicateBookNameError)
+      case _   => Left(new DuplicateBookNameException("すでに同じ名前のタイトルの本が登録されています。"))
     }
   }
 }
