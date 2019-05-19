@@ -7,42 +7,51 @@ import models.repositories.BookRepository
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
-import scala.util.{Failure, Success}
+
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @Singleton
-class BookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)
+class BookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)(implicit ec: ExecutionContext)
     extends AbstractController(cc)
     with I18nSupport
     with Logging {
 
-  def index(): Action[AnyContent] = Action { implicit request =>
-    bookRepository.findAll() match {
-      case Success(books) => {
-        val bookDTOs = books.map(BookDTO(_))
-        Ok(views.html.book.index(bookDTOs))
+  def index(): Action[AnyContent] = Action.async { implicit request =>
+    bookRepository
+      .findAll()
+      .map { books =>
+        {
+          val bookDTOs = books.map(BookDTO(_))
+          Ok(views.html.book.index(bookDTOs))
+        }
       }
-      case Failure(ex) => {
-        logger.error(s"index occurred error", ex)
-        InternalServerError(ex.getMessage)
+      .recover {
+        case NonFatal(e) => {
+          logger.error(s"index occurred error", e)
+          InternalServerError(e.getMessage)
+        }
       }
-    }
   }
 
-  def search(): Action[AnyContent] = Action { implicit request =>
+  def search(): Action[AnyContent] = Action.async { implicit request =>
     BookSearch.form.bindFromRequest.fold(
-      _ => Redirect("/books"),
+      _ => Future.successful(Redirect("/books")),
       bookName => {
         bookRepository
-          .searchName(bookName.name) match {
-          case Success(books) => {
-            val bookDTOs = books.map(BookDTO(_))
-            Ok(views.html.book.index(bookDTOs))
+          .searchName(bookName.name)
+          .map { books =>
+            {
+              val bookDTOs = books.map(BookDTO(_))
+              Ok(views.html.book.index(bookDTOs))
+            }
           }
-          case Failure(ex) => {
-            logger.error(s"occurred error", ex)
-            InternalServerError(ex.getMessage)
+          .recover {
+            case NonFatal(e) => {
+              logger.error(s"index occurred error", e)
+              InternalServerError(e.getMessage)
+            }
           }
-        }
       }
     )
   }

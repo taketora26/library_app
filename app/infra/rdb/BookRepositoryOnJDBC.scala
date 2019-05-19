@@ -1,18 +1,20 @@
 package infra.rdb
 
 import infra.rdb.records.BookRecord
+import javax.inject.{Inject, Singleton}
 import models._
 import models.repositories.BookRepository
 import scalikejdbc.{DB, _}
 
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, Future}
 
-class BookRepositoryOnJDBC extends BookRepository {
+@Singleton
+class BookRepositoryOnJDBC @Inject()(implicit ec: ExecutionContext) extends BookRepository {
 
   val b: scalikejdbc.QuerySQLSyntaxProvider[scalikejdbc.SQLSyntaxSupport[BookRecord], BookRecord] =
     BookRecord.syntax("b")
 
-  def findAll(): Try[Seq[Book]] = Try {
+  def findAll(): Future[Seq[Book]] = Future {
     DB readOnly { implicit session =>
       sql"select * from books as b LIMIT 200 "
         .map(BookRecord(b.resultName))
@@ -22,7 +24,7 @@ class BookRepositoryOnJDBC extends BookRepository {
     }
   }
 
-  def add(book: Book): Try[Unit] = Try {
+  def add(book: Book): Future[Unit] = Future {
     val record = BookRecord(book)
     DB localTx { implicit session =>
       sql"""insert into books (id, name, author, published_date, description)
@@ -39,13 +41,13 @@ class BookRepositoryOnJDBC extends BookRepository {
     }
   }
 
-  def findByName(name: String): Try[Seq[Book]] = Try {
+  def findByName(name: String): Future[Seq[Book]] = Future {
     DB readOnly { implicit session =>
       sql"select b.* from books as b where name = $name".map(BookRecord(b.resultName)).list().apply().map(toModel)
     }
   }
 
-  def update(book: Book): Try[Unit] = Try {
+  def update(book: Book): Future[Unit] = Future {
     val record = BookRecord(book)
     DB localTx { implicit session =>
       sql"""update books
@@ -61,19 +63,19 @@ class BookRepositoryOnJDBC extends BookRepository {
     }
   }
 
-  def findById(bookId: String): Try[Option[Book]] = Try {
+  def findById(bookId: String): Future[Option[Book]] = Future {
     DB readOnly { implicit session =>
       sql"select b.* from books as b where id = $bookId".map(BookRecord(b.resultName)).headOption().apply().map(toModel)
     }
   }
 
-  def delete(bookId: String): Try[Unit] = Try {
+  def delete(bookId: String): Future[Unit] = Future {
     DB localTx { implicit session =>
       sql"delete from books where id = $bookId".update().apply()
     }
   }
 
-  def searchName(name: String): Try[Seq[Book]] = Try {
+  def searchName(name: String): Future[Seq[Book]] = Future {
     DB readOnly { implicit session =>
       val searchName = s"%$name%"
       sql"select b.* from books as b where name like $searchName"

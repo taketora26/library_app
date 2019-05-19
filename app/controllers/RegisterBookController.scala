@@ -3,17 +3,19 @@ package controllers
 import controllers.forms.BookRegister
 import javax.inject.{Inject, Singleton}
 import models.Book
-import models.exception.DuplicateBookNameException
+import models.exception.{DuplicateBookNameError, RegisterError}
 import models.repositories.BookRepository
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
 
-import scala.util.{Failure, Success}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @Singleton
-class RegisterBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)
-    extends AbstractController(cc)
+class RegisterBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)(
+    implicit ec: ExecutionContext
+) extends AbstractController(cc)
     with I18nSupport
     with Logging {
 
@@ -21,24 +23,28 @@ class RegisterBookController @Inject()(cc: ControllerComponents, bookRepository:
     Ok(views.html.book.register(BookRegister.form))
   }
 
-  def register() = Action { implicit request =>
+  def register() = Action.async { implicit request =>
     BookRegister.form.bindFromRequest.fold(
-      error => BadRequest(views.html.book.register(error)),
+      error => Future.successful(BadRequest(views.html.book.register(error))),
       book => {
-        (for {
-          books  <- bookRepository.findByName(book.name)
-          _      <- Book.canRegister(books).toTry
-          result <- bookRepository.add(Book(book.name, book.author, book.publishedDate, book.description))
-        } yield result) match {
-          case Success(_) => Redirect("/books")
-
-          case Failure(ex: DuplicateBookNameException) =>
-            BadRequest(views.html.book.register(BookRegister.form.withGlobalError(ex.getMessage)))
-          case Failure(ex) => {
-            logger.error(s"occurred error", ex)
-            InternalServerError(ex.getMessage)
+        val xx: Future[Either[RegisterError, Unit]] = for {
+          books <- bookRepository.findByName(book.name)
+        } yield
+          for {
+            _ <- Book.canRegister(books)
+            _ <- bookRepository.add(Book(book.name, book.author, book.publishedDate, book.description)).toEither
+          } yield ()
+        xx.map {
+            case Right(_) => Redirect("/books")
+            case Left(DuplicateBookNameError) =>
+              BadRequest(views.html.book.register(BookRegister.form.withGlobalError(DuplicateBookNameError.message)))
           }
-        }
+          .recover {
+            case NonFatal(ex) => {
+              logger.error(s"occurred error", ex)
+              InternalServerError(ex.getMessage)
+            }
+          }
       }
     )
   }

@@ -6,40 +6,51 @@ import models.repositories.BookRepository
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
-import scala.util.{Failure, Success}
+
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @Singleton
-class UpdateBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)
-    extends AbstractController(cc)
+class UpdateBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)(
+    implicit ec: ExecutionContext
+) extends AbstractController(cc)
     with I18nSupport
     with Logging {
 
-  def index(id: String): Action[AnyContent] = Action { implicit request =>
-    bookRepository.findById(id) match {
-      case Success(Some(book)) => {
-        val editForm = BookUpdate.form.fill(BookUpdate(book))
-        Ok(views.html.book.update(editForm))
+  def index(id: String): Action[AnyContent] = Action.async { implicit request =>
+    bookRepository
+      .findById(id)
+      .map {
+        case Some(book) => {
+          val editForm = BookUpdate.form.fill(BookUpdate(book))
+          Ok(views.html.book.update(editForm))
+        }
+        case None => NotFound("idが見つかりませんでした。")
       }
-      case Success(None) => NotFound("idが見つかりませんでした。")
-      case Failure(ex) => {
-        logger.error(s"occurred error", ex)
-        InternalServerError(ex.getMessage)
+      .recover {
+        case NonFatal(ex) => {
+          logger.error(s"occurred error", ex)
+          InternalServerError(ex.getMessage)
+        }
       }
-    }
   }
 
-  def update(): Action[AnyContent] = Action { implicit request =>
+  def update(): Action[AnyContent] = Action.async { implicit request =>
     BookUpdate.form.bindFromRequest.fold(
-      error => BadRequest(views.html.book.update(error)),
+      error => Future.successful(BadRequest(views.html.book.update(error))),
       updatingBook => {
         val book = updatingBook.toBookModel
-        bookRepository.update(book) match {
-          case Success(_) => Redirect("/books")
-          case Failure(ex) => {
-            logger.error(s"occurred error", ex)
-            InternalServerError(ex.getMessage)
+        bookRepository
+          .update(book)
+          .map { _ =>
+            Redirect("/books")
           }
-        }
+          .recover {
+            case NonFatal(ex) => {
+              logger.error(s"occurred error", ex)
+              InternalServerError(ex.getMessage)
+            }
+          }
       }
     )
   }
