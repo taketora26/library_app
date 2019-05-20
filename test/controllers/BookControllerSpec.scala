@@ -2,6 +2,8 @@ package controllers
 
 import java.time.LocalDate
 
+import akka.actor.ActorSystem
+import infra.rdb.ExecutionContextOnJDBC
 import models.Book
 import models.repositories.BookRepository
 import org.mockito.Mockito._
@@ -18,6 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
   private val mockBookRepository = mock[BookRepository]
+  implicit val ecOnJDBC          = new ExecutionContextOnJDBC(ActorSystem())
 
   private val controller =
     new BookController(

@@ -1,6 +1,7 @@
 package controllers
 
 import controllers.forms.BookRegister
+import infra.rdb.ExecutionContextOnJDBC
 import javax.inject.{Inject, Singleton}
 import models.Book
 import models.exception.DuplicateBookNameException
@@ -15,7 +16,7 @@ import scala.util.control.NonFatal
 
 @Singleton
 class RegisterBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)(
-    implicit ec: ExecutionContext
+    implicit ec: ExecutionContextOnJDBC
 ) extends AbstractController(cc)
     with I18nSupport
     with Logging {

@@ -2,6 +2,7 @@ package controllers
 
 import controllers.dtos.BookDTO
 import controllers.forms.BookSearch
+import infra.rdb.ExecutionContextOnJDBC
 import javax.inject.{Inject, Singleton}
 import models.repositories.BookRepository
 import play.api.Logging
@@ -12,8 +13,9 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 @Singleton
-class BookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)(implicit ec: ExecutionContext)
-    extends AbstractController(cc)
+class BookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)(
+    implicit ec: ExecutionContextOnJDBC
+) extends AbstractController(cc)
     with I18nSupport
     with Logging {
 

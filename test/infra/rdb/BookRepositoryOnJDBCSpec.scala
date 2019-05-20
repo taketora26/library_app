@@ -3,6 +3,7 @@ package infra.rdb
 import models._
 import java.time.LocalDate
 
+import akka.actor.ActorSystem
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.fixture.FlatSpec
@@ -13,6 +14,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class BookRepositoryOnJDBCSpec extends FlatSpec with AutoRollback with ScalaFutures with BeforeAndAfterAll {
+
+  implicit val ecOnJDBC = new ExecutionContextOnJDBC(ActorSystem())
 
   val repository = new BookRepositoryOnJDBC
   config.DBsWithEnv("test").setupAll
