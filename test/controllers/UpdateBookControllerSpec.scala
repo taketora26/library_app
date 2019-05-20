@@ -11,8 +11,9 @@ import play.api.mvc._
 import play.api.test.CSRFTokenHelper._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, stubControllerComponents, _}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.util.{Failure, Success}
+import scala.concurrent.Future
 class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
   private val mockBookRepository = mock[BookRepository]
@@ -34,7 +35,7 @@ class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
   "index()" should {
 
     "BDに対象本のデータが存在する場合、編集画面を表示する" in {
-      when(mockBookRepository.findById("book_id_1")).thenReturn(Success(Some(book1)))
+      when(mockBookRepository.findById("book_id_1")).thenReturn(Future.successful(Some(book1)))
       val result           = controller.index("book_id_1").apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(status(result) === OK)
@@ -42,7 +43,7 @@ class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
     }
 
     "BDに対象本のデータが存在しない場合、NotFound(404)を表示する" in {
-      when(mockBookRepository.findById("book_id_1")).thenReturn(Success(None))
+      when(mockBookRepository.findById("book_id_1")).thenReturn(Future.successful(None))
       val result           = controller.index("book_id_1").apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(status(result) === NOT_FOUND)
@@ -50,7 +51,7 @@ class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
     }
 
     "bookRepository.findById()で例外が発生した場合、InternalServerError(500)を表示する" in {
-      when(mockBookRepository.findById("book_id_1")).thenReturn(Failure(new Exception("Something happened")))
+      when(mockBookRepository.findById("book_id_1")).thenReturn(Future.failed(new Exception("Something happened")))
       val result           = controller.index("book_id_1").apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(status(result) === INTERNAL_SERVER_ERROR)
@@ -79,14 +80,13 @@ class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
         "description"   -> "Test Description1 Update"
       )
 
-      when(mockBookRepository.update(updatingBook)).thenReturn(Success(()))
+      when(mockBookRepository.update(updatingBook)).thenReturn(Future.successful(()))
 
       val result = controller.update().apply(request.withCSRFToken)
       assert(status(result) === SEE_OTHER)
     }
 
     "BookRepository.updateで例外が発生した場合、InternalServerError(500)を返す" in {
-
       val updatingBook = new Book(
         id = "book_id_1",
         name = Name("Test Book1 Update"),
@@ -103,7 +103,7 @@ class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
         "description"   -> "Test Description1 Update"
       )
 
-      when(mockBookRepository.update(updatingBook)).thenReturn(Failure(new Exception("Something happened")))
+      when(mockBookRepository.update(updatingBook)).thenReturn(Future.failed(new Exception("Something happened")))
 
       val result = controller.update().apply(request.withCSRFToken)
       assert(status(result) === INTERNAL_SERVER_ERROR)
