@@ -1,7 +1,5 @@
 package controllers
 
-import akka.actor.ActorSystem
-import infra.rdb.ExecutionContextOnJDBC
 import models.repositories.BookRepository
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -10,14 +8,12 @@ import play.api.mvc._
 import play.api.test.CSRFTokenHelper._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, stubControllerComponents, _}
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 class DeleteBookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
   private val mockBookRepository = mock[BookRepository]
-  implicit val ecOnJDBC          = new ExecutionContextOnJDBC(ActorSystem())
 
   private val controller =
     new DeleteBookController(

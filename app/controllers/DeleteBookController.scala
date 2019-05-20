@@ -1,6 +1,5 @@
 package controllers
 
-import infra.rdb.ExecutionContextOnJDBC
 import javax.inject.{Inject, Singleton}
 import models.repositories.BookRepository
 import play.api.Logging
@@ -12,7 +11,7 @@ import scala.util.control.NonFatal
 
 @Singleton
 class DeleteBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)(
-    implicit ec: ExecutionContextOnJDBC
+    implicit ec: ExecutionContext
 ) extends AbstractController(cc)
     with I18nSupport
     with Logging {

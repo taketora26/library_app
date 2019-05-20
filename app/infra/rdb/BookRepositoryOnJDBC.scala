@@ -6,7 +6,7 @@ import models._
 import models.repositories.BookRepository
 import scalikejdbc.{DB, _}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
 class BookRepositoryOnJDBC @Inject()(implicit ec: ExecutionContextOnJDBC) extends BookRepository {

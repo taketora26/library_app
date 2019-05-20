@@ -1,6 +1,5 @@
 package controllers
-import akka.actor.ActorSystem
-import infra.rdb.ExecutionContextOnJDBC
+
 import models.Book
 import models.repositories.BookRepository
 import org.mockito.ArgumentMatchers.any
@@ -11,14 +10,12 @@ import play.api.mvc.Results
 import play.api.test.CSRFTokenHelper._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, stubControllerComponents, _}
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
   private val mockBookRepository = mock[BookRepository]
-  implicit val ecOnJDBC          = new ExecutionContextOnJDBC(ActorSystem())
 
   private val controller = new RegisterBookController(
     stubControllerComponents(),

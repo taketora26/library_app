@@ -3,19 +3,19 @@ package infra.rdb
 import models._
 import java.time.LocalDate
 
-import akka.actor.ActorSystem
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.fixture.FlatSpec
+import play.api.inject.guice.GuiceApplicationBuilder
 import scalikejdbc.{SQL, _}
 import scalikejdbc.scalatest.AutoRollback
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class BookRepositoryOnJDBCSpec extends FlatSpec with AutoRollback with ScalaFutures with BeforeAndAfterAll {
 
-  implicit val ecOnJDBC = new ExecutionContextOnJDBC(ActorSystem())
+  private val injector                    = new GuiceApplicationBuilder().injector()
+  implicit val ec: ExecutionContextOnJDBC = injector.instanceOf[ExecutionContextOnJDBC]
 
   val repository = new BookRepositoryOnJDBC
   config.DBsWithEnv("test").setupAll
@@ -95,7 +95,6 @@ class BookRepositoryOnJDBCSpec extends FlatSpec with AutoRollback with ScalaFutu
     Thread.sleep(100)
     val findRecord = repository.findById("test4_id")
 
-    assert(result.futureValue === ())
     assert(findRecord.futureValue.get === newBook)
   }
 
@@ -111,7 +110,6 @@ class BookRepositoryOnJDBCSpec extends FlatSpec with AutoRollback with ScalaFutu
     Thread.sleep(100)
     val findRecord = repository.findById("test1_id")
 
-    assert(result.futureValue === ())
     assert(findRecord.futureValue.get === updatingBook)
   }
 
@@ -125,7 +123,6 @@ class BookRepositoryOnJDBCSpec extends FlatSpec with AutoRollback with ScalaFutu
     val result     = repository.delete("test1_id")
     val findRecord = repository.findByName("test1_id")
 
-    assert(result.futureValue === ())
     assert(findRecord.futureValue === Nil)
   }
 }
