@@ -37,3 +37,10 @@ flywayPassword in Test := conf.getString("test.db.default.password")
 flywayLocations in Test := Seq(
   "filesystem:./conf/db/migration/default"
 )
+test.in(Test) := {
+  test
+    .in(Test)
+    .dependsOn(flywayMigrate.in(Test))
+    .dependsOn(flywayClean.in(Test))
+    .value
+}

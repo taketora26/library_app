@@ -2,6 +2,7 @@ package models
 
 import java.time.LocalDate
 import java.util.UUID
+
 import models.exception.DuplicateBookNameException
 
 case class Book(id: String,
@@ -43,7 +44,7 @@ object Book {
   def canRegister(books: Seq[Book]): Either[DuplicateBookNameException, Boolean] = {
     books match {
       case Nil => Right(true)
-      case _   => Left(new DuplicateBookNameException("すでに同一の名前の本が登録されています。"))
+      case _   => Left(new DuplicateBookNameException("すでに同じ名前のタイトルの本が登録されています。"))
     }
   }
 }

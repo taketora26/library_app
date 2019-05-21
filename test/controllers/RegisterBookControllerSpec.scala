@@ -1,4 +1,5 @@
 package controllers
+
 import models.Book
 import models.repositories.BookRepository
 import org.mockito.ArgumentMatchers.any
@@ -9,8 +10,9 @@ import play.api.mvc.Results
 import play.api.test.CSRFTokenHelper._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, stubControllerComponents, _}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.util.{Failure, Success}
+import scala.concurrent.Future
 class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
   private val mockBookRepository = mock[BookRepository]
@@ -37,8 +39,8 @@ class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results
 
   "register()" should {
     "登録フォームに本のタイトルが入力されていれば、登録後、登録本一覧にリダイレクトされる" in {
-      when(mockBookRepository.findByName("MyBook1")).thenReturn(Success(Nil))
-      when(mockBookRepository.add(any[Book])).thenReturn(Success(()))
+      when(mockBookRepository.findByName("MyBook1")).thenReturn(Future.successful(Nil))
+      when(mockBookRepository.add(any[Book])).thenReturn(Future.successful(()))
 
       val request = FakeRequest(POST, "/books/register").withFormUrlEncodedBody(
         "name" -> "MyBook1"
@@ -49,8 +51,8 @@ class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results
     }
 
     "登録フォームに本のタイトルが入力されていない場合は、BadRequest(400)を返す" in {
-      when(mockBookRepository.findByName("MyBook1")).thenReturn(Success(Nil))
-      when(mockBookRepository.add(any[Book])).thenReturn(Success(()))
+      when(mockBookRepository.findByName("MyBook1")).thenReturn(Future.successful(Nil))
+      when(mockBookRepository.add(any[Book])).thenReturn(Future.successful(()))
 
       val request = FakeRequest(POST, "/books/register").withFormUrlEncodedBody(
         "name" -> ""
@@ -61,7 +63,7 @@ class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results
     }
 
     "BookRepository.findByNameで例外が発生した場合、Internal Server Error(500)を返す" in {
-      when(mockBookRepository.findByName("MyBook1")).thenReturn(Failure(new Exception("Something happened")))
+      when(mockBookRepository.findByName("MyBook1")).thenReturn(Future.failed(new Exception("Something happened")))
 
       val request = FakeRequest(POST, "/books/register").withFormUrlEncodedBody(
         "name" -> "MyBook1"
@@ -72,8 +74,8 @@ class RegisterBookControllerSpec extends PlaySpec with MockitoSugar with Results
     }
 
     "BookRepository.addで例外が発生した場合、Internal Server Error(500)を返す" in {
-      when(mockBookRepository.findByName("MyBook1")).thenReturn(Success(Nil))
-      when(mockBookRepository.add(any[Book])).thenReturn(Failure(new Exception("Something happened")))
+      when(mockBookRepository.findByName("MyBook1")).thenReturn(Future.successful(Nil))
+      when(mockBookRepository.add(any[Book])).thenReturn(Future.failed(new Exception("Something happened")))
 
       val request = FakeRequest(POST, "/books/register").withFormUrlEncodedBody(
         "name" -> "MyBook1"

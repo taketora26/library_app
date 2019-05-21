@@ -8,8 +8,9 @@ import play.api.mvc._
 import play.api.test.CSRFTokenHelper._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, stubControllerComponents, _}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.util.{Failure, Success}
+import scala.concurrent.Future
 class DeleteBookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
   private val mockBookRepository = mock[BookRepository]
@@ -22,13 +23,13 @@ class DeleteBookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
   "delete(bookId)" should {
     "登録されている本を削除して、本の一覧にリダイレクトする" in {
-      when(mockBookRepository.delete("book_id_1")).thenReturn(Success(()))
+      when(mockBookRepository.delete("book_id_1")).thenReturn(Future.successful(()))
       val result = controller.delete("book_id_1").apply(FakeRequest().withCSRFToken)
       assert(status(result) === SEE_OTHER)
     }
 
     "BookRepository.deleteで例外が発生した場合に、本の一覧にリダイレクトする" in {
-      when(mockBookRepository.delete("book_id_1")).thenReturn(Failure(new Exception("Something happened")))
+      when(mockBookRepository.delete("book_id_1")).thenReturn(Future.failed(new Exception("Something happened")))
       val result = controller.delete("book_id_1").apply(FakeRequest().withCSRFToken)
       assert(status(result) === SEE_OTHER)
     }

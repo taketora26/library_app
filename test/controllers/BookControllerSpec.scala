@@ -1,6 +1,7 @@
 package controllers
 
 import java.time.LocalDate
+
 import models.Book
 import models.repositories.BookRepository
 import org.mockito.Mockito._
@@ -10,8 +11,9 @@ import play.api.mvc._
 import play.api.test.CSRFTokenHelper._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, stubControllerComponents, _}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.util.{Failure, Success}
+import scala.concurrent.Future
 
 class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
 
@@ -54,7 +56,7 @@ class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
   "index()" should {
 
     "登録した本の一覧画面を表示する" in {
-      when(mockBookRepository.findAll()).thenReturn(Success(books))
+      when(mockBookRepository.findAll()).thenReturn(Future.successful((books)))
       val result           = controller.index().apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(status(result) === OK)
@@ -62,21 +64,21 @@ class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
     }
 
     "登録した本の一覧画面に本の名前「name_3」が含まれている" in {
-      when(mockBookRepository.findAll()).thenReturn(Success(books))
+      when(mockBookRepository.findAll()).thenReturn(Future.successful(books))
       val result           = controller.index().apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(bodyText contains ("name_3"))
     }
 
     "BookRepository.findAll()で例外が発生した場合に、Internal Server Error(500)を返す" in {
-      when(mockBookRepository.findAll()).thenReturn(Failure(new Exception("Something happened")))
+      when(mockBookRepository.findAll()).thenReturn(Future.failed(new Exception("Something happened")))
       val result           = controller.index().apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(status(result) === INTERNAL_SERVER_ERROR)
     }
 
     "BookRepository.findAll()で例外が発生した場合に、例外のメッセージが表示される" in {
-      when(mockBookRepository.findAll()).thenReturn(Failure(new Exception("Something happened")))
+      when(mockBookRepository.findAll()).thenReturn(Future.failed(new Exception("Something happened")))
       val result           = controller.index().apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(bodyText contains ("Something happened"))
@@ -86,7 +88,7 @@ class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
   "search()" should {
 
     "検索したタイトルに部分一致する本の一覧を表示する" in {
-      when(mockBookRepository.searchName("name_4")).thenReturn(Success(Seq(book4)))
+      when(mockBookRepository.searchName("name_4")).thenReturn(Future.successful(Seq(book4)))
 
       val request = FakeRequest(POST, "/books/search").withFormUrlEncodedBody(
         "name" -> "name_4"
@@ -100,7 +102,7 @@ class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
     }
 
     "BookRepository.searchNameで例外が発生した場合に、InternalServerError(500)を表示する" in {
-      when(mockBookRepository.searchName("name_4")).thenReturn(Failure(new Exception("Something happened")))
+      when(mockBookRepository.searchName("name_4")).thenReturn(Future.failed(new Exception("Something happened")))
 
       val request = FakeRequest(POST, "/books/search").withFormUrlEncodedBody(
         "name" -> "name_4"
