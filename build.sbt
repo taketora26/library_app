@@ -13,7 +13,8 @@ libraryDependencies ++= Seq(
   "org.scalikejdbc"        %% "scalikejdbc"                  % "3.3.3",
   "org.scalikejdbc"        %% "scalikejdbc-config"           % "3.3.3",
   "org.scalikejdbc"        %% "scalikejdbc-play-initializer" % "2.7.0-scalikejdbc-3.3",
-  "org.scalikejdbc"        %% "scalikejdbc-test"             % "3.3.3" % "test",
+  "org.scalikejdbc"        %% "scalikejdbc-test"             % "3.3.3" % Test,
+  "org.scalacheck"         %% "scalacheck"                   % "1.14.0" % Test,
   "ch.qos.logback"         % "logback-classic"               % "1.2.3" % Test,
   "mysql"                  % "mysql-connector-java"          % "6.0.6",
   "org.mockito"            % "mockito-core"                  % "2.27.0" % Test
