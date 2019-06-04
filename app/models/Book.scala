@@ -2,7 +2,10 @@ package models
 
 import java.time.LocalDate
 import java.util.UUID
+
 import models.exception.DuplicateBookNameException
+
+import scala.util.{Failure, Success, Try}
 
 case class Book(id: String,
                 name: Name,
@@ -40,10 +43,10 @@ object Book {
     )
   }
 
-  def canRegister(books: Seq[Book]): Either[DuplicateBookNameException, Boolean] = {
+  def canRegister(books: Seq[Book]): Try[Unit] = {
     books match {
-      case Nil => Right(true)
-      case _   => Left(new DuplicateBookNameException("すでに同一の名前の本が登録されています。"))
+      case Nil => Success(())
+      case _   => Failure(new DuplicateBookNameException("すでに同一の名前の本が登録されています。"))
     }
   }
 }

@@ -29,7 +29,7 @@ class RegisterBookController @Inject()(cc: ControllerComponents,
       book => {
         (for {
           books  <- bookRepository.findByName(book.name)
-          _      <- Book.canRegister(books).toTry
+          _      <- Book.canRegister(books)
           result <- bookRepository.add(Book(book.name, book.author, book.publishedDate, book.description))
         } yield result) match {
           case Success(_) => Redirect("/books")
