@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 
 @Singleton
-class DeleteBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)(
+class DeleteBookController @Inject() (cc: ControllerComponents, bookRepository: BookRepository)(
     implicit ec: ExecutionContext
 ) extends AbstractController(cc)
     with I18nSupport

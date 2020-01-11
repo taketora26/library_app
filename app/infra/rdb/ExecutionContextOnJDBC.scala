@@ -5,4 +5,4 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.concurrent.CustomExecutionContext
 
 @Singleton
-class ExecutionContextOnJDBC @Inject()(system: ActorSystem) extends CustomExecutionContext(system, "jdbc-dispatcher")
+class ExecutionContextOnJDBC @Inject() (system: ActorSystem) extends CustomExecutionContext(system, "jdbc-dispatcher")

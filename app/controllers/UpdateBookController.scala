@@ -11,7 +11,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 @Singleton
-class UpdateBookController @Inject()(cc: ControllerComponents, bookRepository: BookRepository)(
+class UpdateBookController @Inject() (cc: ControllerComponents, bookRepository: BookRepository)(
     implicit ec: ExecutionContext
 ) extends AbstractController(cc)
     with I18nSupport

@@ -9,7 +9,7 @@ import scalikejdbc.{DB, _}
 import scala.concurrent.Future
 
 @Singleton
-class BookRepositoryOnJDBC @Inject()(implicit ec: ExecutionContextOnJDBC) extends BookRepository {
+class BookRepositoryOnJDBC @Inject() (implicit ec: ExecutionContextOnJDBC) extends BookRepository {
 
   val b: scalikejdbc.QuerySQLSyntaxProvider[scalikejdbc.SQLSyntaxSupport[BookRecord], BookRecord] =
     BookRecord.syntax("b")

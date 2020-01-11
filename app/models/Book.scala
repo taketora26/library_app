@@ -5,18 +5,22 @@ import java.util.UUID
 
 import models.exception.DuplicateBookNameException
 
-case class Book(id: String,
-                name: Name,
-                author: Option[Author],
-                publishedDate: Option[PublishedDate],
-                description: Option[Description])
+case class Book(
+    id: String,
+    name: Name,
+    author: Option[Author],
+    publishedDate: Option[PublishedDate],
+    description: Option[Description]
+)
 
 object Book {
 
-  def apply(nameString: String,
-            authorString: Option[String],
-            publishedDateLocal: Option[LocalDate],
-            descriptionString: Option[String]): Book = {
+  def apply(
+      nameString: String,
+      authorString: Option[String],
+      publishedDateLocal: Option[LocalDate],
+      descriptionString: Option[String]
+  ): Book = {
     val uuid = UUID.randomUUID.toString
     new Book(
       id = uuid,
@@ -27,11 +31,13 @@ object Book {
     )
   }
 
-  def apply(id: String,
-            nameString: String,
-            authorString: Option[String],
-            publishedDateString: Option[LocalDate],
-            descriptionString: Option[String]): Book = {
+  def apply(
+      id: String,
+      nameString: String,
+      authorString: Option[String],
+      publishedDateString: Option[LocalDate],
+      descriptionString: Option[String]
+  ): Book = {
     new Book(
       id = id,
       name = Name(nameString),

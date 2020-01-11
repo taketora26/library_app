@@ -5,11 +5,13 @@ import java.time.LocalDate
 import models.Book
 import scalikejdbc.{ResultName, SQLSyntaxSupport, WrappedResultSet}
 
-case class BookRecord(id: String,
-                      name: String,
-                      author: Option[String],
-                      publishedDate: Option[LocalDate],
-                      description: Option[String])
+case class BookRecord(
+    id: String,
+    name: String,
+    author: Option[String],
+    publishedDate: Option[LocalDate],
+    description: Option[String]
+)
 
 object BookRecord extends SQLSyntaxSupport[BookRecord] {
 

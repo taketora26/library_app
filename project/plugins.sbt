@@ -1,5 +1,4 @@
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.7.1")
-addSbtPlugin("org.foundweekends.giter8" % "sbt-giter8-scaffold" % "0.11.0")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.7.4")
 
-addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.15")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.0")
 addSbtPlugin("io.github.davidmweber" % "flyway-sbt" % "5.2.0")

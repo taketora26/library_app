@@ -5,18 +5,19 @@ version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.13.1"
+lazy val scalikejdbcVersion = "3.4.0"
 
 libraryDependencies ++= Seq(
   guice,
-  "org.scalatestplus.play" %% "scalatestplus-play"           % "4.0.1" % Test,
-  "org.scalikejdbc"        %% "scalikejdbc"                  % "3.3.3",
-  "org.scalikejdbc"        %% "scalikejdbc-config"           % "3.3.3",
-  "org.scalikejdbc"        %% "scalikejdbc-play-initializer" % "2.7.0-scalikejdbc-3.3",
-  "org.scalikejdbc"        %% "scalikejdbc-test"             % "3.3.3" % "test",
+  "org.scalatestplus.play" %% "scalatestplus-play"           % "5.0.0" % Test,
+  "org.scalikejdbc"        %% "scalikejdbc"                  % scalikejdbcVersion,
+  "org.scalikejdbc"        %% "scalikejdbc-config"           % scalikejdbcVersion,
+  "org.scalikejdbc"        %% "scalikejdbc-play-initializer" % "2.7.1-scalikejdbc-3.4",
+  "org.scalikejdbc"        %% "scalikejdbc-test"             % scalikejdbcVersion % "test",
   "ch.qos.logback"         % "logback-classic"               % "1.2.3" % Test,
   "mysql"                  % "mysql-connector-java"          % "6.0.6",
-  "org.mockito"            % "mockito-core"                  % "2.27.0" % Test
+  "org.mockito"            % "mockito-core"                  % "3.2.4" % Test
 )
 
 enablePlugins(FlywayPlugin)
