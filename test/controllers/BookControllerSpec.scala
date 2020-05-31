@@ -6,7 +6,6 @@ import infra.rdb.ContextOnJDBC
 import models.Book
 import models.repositories.BookRepository
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play._
 import play.api.mvc._
 import play.api.test.CSRFTokenHelper._
@@ -15,10 +14,10 @@ import play.api.test.Helpers.{status, stubControllerComponents, _}
 
 import scala.util.{Failure, Success}
 
-class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
+class BookControllerSpec extends PlaySpec with Results {
 
-  private val mockBookRepository   = mock[BookRepository]
-  private implicit val mockContext = mock[ContextOnJDBC]
+  private val mockBookRepository   = mock(classOf[BookRepository])
+  private implicit val mockContext = mock(classOf[ContextOnJDBC])
 
   private val controller =
     new BookController(
@@ -62,14 +61,14 @@ class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
       val result           = controller.index().apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(status(result) === OK)
-      assert(bodyText contains ("name_3"))
+      assert(bodyText contains "name_3")
     }
 
     "登録した本の一覧画面に本の名前「name_3」が含まれている" in {
       when(mockBookRepository.findAll()).thenReturn(Success(books))
       val result           = controller.index().apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
-      assert(bodyText contains ("name_3"))
+      assert(bodyText contains "name_3")
     }
 
     "BookRepository.findAll()で例外が発生した場合に、Internal Server Error(500)を返す" in {
@@ -83,7 +82,7 @@ class BookControllerSpec extends PlaySpec with MockitoSugar with Results {
       when(mockBookRepository.findAll()).thenReturn(Failure(new Exception("Something happened")))
       val result           = controller.index().apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
-      assert(bodyText contains ("Something happened"))
+      assert(bodyText contains "Something happened")
     }
   }
 

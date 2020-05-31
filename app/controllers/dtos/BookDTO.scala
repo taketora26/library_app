@@ -3,11 +3,13 @@ package controllers.dtos
 import java.time.LocalDate
 import models.Book
 
-case class BookDTO(id: String,
-                   name: String,
-                   author: Option[String],
-                   publishedDate: Option[LocalDate],
-                   description: Option[String])
+case class BookDTO(
+    id: String,
+    name: String,
+    author: Option[String],
+    publishedDate: Option[LocalDate],
+    description: Option[String]
+)
 
 object BookDTO {
 

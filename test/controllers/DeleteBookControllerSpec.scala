@@ -3,7 +3,6 @@ package controllers
 import infra.rdb.ContextOnJDBC
 import models.repositories.BookRepository
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play._
 import play.api.mvc._
 import play.api.test.CSRFTokenHelper._
@@ -11,10 +10,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, stubControllerComponents, _}
 
 import scala.util.{Failure, Success}
-class DeleteBookControllerSpec extends PlaySpec with MockitoSugar with Results {
+class DeleteBookControllerSpec extends PlaySpec with Results {
 
-  private val mockBookRepository   = mock[BookRepository]
-  private implicit val mockContext = mock[ContextOnJDBC]
+  private val mockBookRepository   = mock(classOf[BookRepository])
+  private implicit val mockContext = mock(classOf[ContextOnJDBC])
 
   private val controller =
     new DeleteBookController(

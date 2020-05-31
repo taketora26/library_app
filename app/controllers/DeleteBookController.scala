@@ -9,20 +9,22 @@ import play.api.mvc.{AbstractController, ControllerComponents, _}
 import scala.util.{Failure, Success}
 
 @Singleton
-class DeleteBookController @Inject()(cc: ControllerComponents,
-                                     bookRepository: BookRepository,
-                                     implicit val ctx: Context)
-    extends AbstractController(cc)
+class DeleteBookController @Inject() (
+    cc: ControllerComponents,
+    bookRepository: BookRepository,
+    implicit val ctx: Context
+) extends AbstractController(cc)
     with I18nSupport
     with Logging {
 
-  def delete(bookId: String): Action[AnyContent] = Action { implicit request =>
-    bookRepository.delete(bookId) match {
-      case Success(_) => Redirect("/books")
-      case Failure(ex) => {
-        logger.error(s"occurred error", ex)
-        Redirect("/books")
+  def delete(bookId: String): Action[AnyContent] =
+    Action { implicit request =>
+      bookRepository.delete(bookId) match {
+        case Success(_) => Redirect("/books")
+        case Failure(ex) => {
+          logger.error(s"occurred error", ex)
+          Redirect("/books")
+        }
       }
     }
-  }
 }

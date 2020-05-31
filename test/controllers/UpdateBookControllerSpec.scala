@@ -6,7 +6,6 @@ import infra.rdb.ContextOnJDBC
 import models._
 import models.repositories.BookRepository
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play._
 import play.api.mvc._
 import play.api.test.CSRFTokenHelper._
@@ -14,10 +13,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{status, stubControllerComponents, _}
 
 import scala.util.{Failure, Success}
-class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
+class UpdateBookControllerSpec extends PlaySpec with Results {
 
-  private val mockBookRepository   = mock[BookRepository]
-  private implicit val mockContext = mock[ContextOnJDBC]
+  private val mockBookRepository   = mock(classOf[BookRepository])
+  private implicit val mockContext = mock(classOf[ContextOnJDBC])
 
   private val controller =
     new UpdateBookController(
@@ -41,7 +40,7 @@ class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
       val result           = controller.index("book_id_1").apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(status(result) === OK)
-      assert(bodyText contains ("Test Book1"))
+      assert(bodyText contains "Test Book1")
     }
 
     "BDに対象本のデータが存在しない場合、NotFound(404)を表示する" in {
@@ -49,7 +48,7 @@ class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
       val result           = controller.index("book_id_1").apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(status(result) === NOT_FOUND)
-      assert(bodyText contains ("idが見つかりませんでした。"))
+      assert(bodyText contains "idが見つかりませんでした。")
     }
 
     "bookRepository.findById()で例外が発生した場合、InternalServerError(500)を表示する" in {
@@ -57,7 +56,7 @@ class UpdateBookControllerSpec extends PlaySpec with MockitoSugar with Results {
       val result           = controller.index("book_id_1").apply(FakeRequest().withCSRFToken)
       val bodyText: String = contentAsString(result)
       assert(status(result) === INTERNAL_SERVER_ERROR)
-      assert(bodyText contains ("Something happened"))
+      assert(bodyText contains "Something happened")
     }
 
   }

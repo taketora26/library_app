@@ -1,12 +1,12 @@
 # 図書管理システム(PlayFrameworkで作るCRUDのアプリケーションの例)
 
 ## 実行環境
-* Scala 2.12.8
-* PlayFramework 2.7.1
+* Scala 2.13.10
+* PlayFramework 2.8.2
 * Materialize 1.0
-* flyway-sbt 5.2
-* ScalikeJDBC 3.3.3 
-* MySQL 5.7
+* flyway-sbt 6.4.2
+* ScalikeJDBC 3.4.2  
+* MySQL 8
 
 ## ローカル環境での実行
 
