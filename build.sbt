@@ -12,16 +12,16 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala, FlywayPlugin)
   .settings(
     libraryDependencies ++= Seq(
-        guice,
-        "org.scalatestplus.play" %% "scalatestplus-play"           % "5.1.0"        % Test,
-        "org.scalikejdbc"        %% "scalikejdbc"                  % scalikejdbcVer,
-        "org.scalikejdbc"        %% "scalikejdbc-config"           % scalikejdbcVer,
-        "org.scalikejdbc"        %% "scalikejdbc-play-initializer" % "2.8.0-scalikejdbc-3.4",
-        "org.scalikejdbc"        %% "scalikejdbc-test"             % scalikejdbcVer % Test,
-        "ch.qos.logback"          % "logback-classic"              % "1.2.3"        % Test,
-        "mysql"                   % "mysql-connector-java"         % "8.0.20",
-        "org.mockito"             % "mockito-core"                 % "3.3.3"        % Test,
-        "org.scalatest"          %% "scalatest"                    % "3.1.2"        % Test
+        "com.softwaremill.macwire" %% "macros"                       % "2.3.6"        % "provided",
+        "org.scalatestplus.play"   %% "scalatestplus-play"           % "5.1.0"        % Test,
+        "org.scalikejdbc"          %% "scalikejdbc"                  % scalikejdbcVer,
+        "org.scalikejdbc"          %% "scalikejdbc-config"           % scalikejdbcVer,
+        "org.scalikejdbc"          %% "scalikejdbc-play-initializer" % "2.8.0-scalikejdbc-3.4",
+        "org.scalikejdbc"          %% "scalikejdbc-test"             % scalikejdbcVer % Test,
+        "ch.qos.logback"            % "logback-classic"              % "1.2.3"        % Test,
+        "mysql"                     % "mysql-connector-java"         % "8.0.20",
+        "org.mockito"               % "mockito-core"                 % "3.3.3"        % Test,
+        "org.scalatest"            %% "scalatest"                    % "3.1.2"        % Test
       ),
     flywayUrl := conf.getString("db.default.url"),
     flywayUser := conf.getString("db.default.user"),

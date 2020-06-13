@@ -2,16 +2,15 @@ package controllers
 
 import controllers.dtos.BookDTO
 import controllers.forms.BookSearch
-import javax.inject.{Inject, Singleton}
 import models.repositories.{BookRepository, Context}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
+//import javax.inject.{Inject, Singleton}
 
 import scala.util.{Failure, Success}
 
-@Singleton
-class BookController @Inject() (cc: ControllerComponents, bookRepository: BookRepository, implicit val ctx: Context)
+class BookController(cc: ControllerComponents, bookRepository: BookRepository, implicit val ctx: Context)
     extends AbstractController(cc)
     with I18nSupport
     with Logging {
