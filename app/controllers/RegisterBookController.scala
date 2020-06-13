@@ -1,7 +1,7 @@
 package controllers
 
 import controllers.forms.BookRegister
-import javax.inject.{Inject, Singleton}
+//import javax.inject.{Inject, Singleton}
 import models.Book
 import models.exception.DuplicateBookNameException
 import models.repositories.{BookRepository, Context}
@@ -11,8 +11,7 @@ import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponent
 
 import scala.util.{Failure, Success}
 
-@Singleton
-class RegisterBookController @Inject() (
+class RegisterBookController(
     cc: ControllerComponents,
     bookRepository: BookRepository,
     implicit val ctx: Context

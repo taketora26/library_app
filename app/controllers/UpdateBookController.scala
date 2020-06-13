@@ -1,7 +1,7 @@
 package controllers
 
 import controllers.forms.BookUpdate
-import javax.inject.{Inject, Singleton}
+//import javax.inject.{Inject, Singleton}
 import models.repositories.{BookRepository, Context}
 import play.api.Logging
 import play.api.i18n.I18nSupport
@@ -9,8 +9,8 @@ import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponent
 
 import scala.util.{Failure, Success}
 
-@Singleton
-class UpdateBookController @Inject() (
+//@Singleton
+class UpdateBookController(
     cc: ControllerComponents,
     bookRepository: BookRepository,
     implicit val ctx: Context
